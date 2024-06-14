@@ -29,24 +29,17 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
-- task: Docker@2
-  inputs:
-    displayName: Build Docker image
-    containerRegistry: 'Azure-to-GCP-connection'
-    dockerfile: 'Test/Dockerfile'
-    tags: $(tag)
-    repository: 'sasi1301/customer'
-    command: 'build'
+
 
 - task: Docker@2
   inputs:
-    containerRegistry: 'Azure-to-GCP-connection'
+    containerRegistry: 'Service connection name'
     command: 'login'    
 - task: Docker@2
   inputs:
     displayName: Build Docker image
-    containerRegistry: 'Azure-to-GCP-connection'
+    containerRegistry: 'Service connection name'
     dockerfile: 'Test/Dockerfile'
     tags: $(tag)
-    repository: 'sasi1301/customer'
+    repository: 'project id /repo name'
     command: 'buildAndPush'
