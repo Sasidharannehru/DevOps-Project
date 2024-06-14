@@ -1,0 +1,52 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+ branches:
+   include:
+     - java 
+ paths:
+    include:
+      - Test
+ 
+resources:
+  - repo: self
+variables:
+  tag: '$(Build.BuildId)'  
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'Test/pom.xml'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: false
+- task: Docker@2
+  inputs:
+    displayName: Build Docker image
+    containerRegistry: 'Azure-to-GCP-connection'
+    dockerfile: 'Test/Dockerfile'
+    tags: $(tag)
+    repository: 'sasi1301/customer'
+    command: 'build'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Azure-to-GCP-connection'
+    command: 'login'    
+- task: Docker@2
+  inputs:
+    displayName: Build Docker image
+    containerRegistry: 'Azure-to-GCP-connection'
+    dockerfile: 'Test/Dockerfile'
+    tags: $(tag)
+    repository: 'sasi1301/customer'
+    command: 'buildAndPush'
